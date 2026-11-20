@@ -49,10 +49,10 @@ class PlumeBase:
 class VentilatedPlumeBase:
     """The plume's base state when horizontal wind contributes to volume flux out of a control
     volume above the fire of height h0 and along-wind depth L. Heat flux per unit fire
-    area is ventilated by a volume flux per unit fire area equal wu + s * h0/L, so conservation
+    area is ventilated by a volume flux per unit fire depth equal wu*L + s*h0, so conservation
     of heat reads:
 
-        H = rho cp dtheta (w0 + s h0 / L),    w0**2 = K dtheta    (K as in PlumeBase),
+        H L = rho cp dtheta (w0 L + s h0),    w0**2 = K dtheta    (K as in PlumeBase),
 
     so w0**2 (w0 + s h0 / L) = K H / (rho cp). Limits:
      - s h0 / L >> w0:  w0 ~ H**(1/2) * s**(-1/2)

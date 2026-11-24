@@ -26,7 +26,6 @@ This is the reference implementation's model, with Morton entrainment and its w 
 les_core_plume.py runs the default model.
 """
 
-import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -37,11 +36,14 @@ from matplotlib.patches import Patch
 import config
 from plume_model.wur_plume import DZ_PLUME, Plume
 
-sys.path.insert(0, str(Path(__file__).parent))
 import les
-from crosscheck_js import REFERENCE_A_W, REFERENCE_B_W, REFERENCE_FAC_ENT
 
 OUTPUT = Path(__file__).parent / "output" / "les_dry_line_fire"
+
+# The reference implementation's former Morton entrainment and w equation, for the reference run.
+REFERENCE_FAC_ENT = 1.0
+REFERENCE_A_W = 1.0
+REFERENCE_B_W = 0.2
 
 FLI_PROFILES = 10e6
 

@@ -26,7 +26,6 @@ the displacement and u of that centreline, and the plume top. Area has no LES co
 so it is shown against the LES mean plume.
 """
 
-import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -36,7 +35,6 @@ from matplotlib.lines import Line2D
 import config
 from plume_model.wur_plume import A_BUOYANT, A_W, B_W, FAC_ENT
 
-sys.path.insert(0, str(Path(__file__).parent))
 import les
 from les_dry_line_fire import at_height, fli_values, guide_line, run_model
 

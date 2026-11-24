@@ -29,7 +29,6 @@ Above the highest LES level with core or mean data, the air keeps its last theta
 unmixed through the environment. The top is where w**2 reaches zero.
 """
 
-import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -40,7 +39,6 @@ import config
 from plume_model.wur_plume import A_BUOYANT, A_W, B_W, FAC_ENT
 from plume_model.thermo import g
 
-sys.path.insert(0, str(Path(__file__).parent))
 import les
 from les_dry_line_fire import fli_values, guide_line
 

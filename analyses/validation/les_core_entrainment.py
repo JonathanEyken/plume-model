@@ -28,7 +28,6 @@ for a_w at fixed b_w and shown against z / h_abl. The base check compares the de
 surface model, ventilated on the LES front depth, with the LES core and mean plume at h0.
 """
 
-import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -37,7 +36,6 @@ import numpy as np
 import config
 from plume_model.wur_plume import A_BUOYANT, A_W, B_W, FAC_ENT, H0_PLUME, Plume
 
-sys.path.insert(0, str(Path(__file__).parent))
 import les
 from les_dry_line_fire import at_height, fli_values, guide_line
 

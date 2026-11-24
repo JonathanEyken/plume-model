@@ -6,5 +6,5 @@ venv/
 build/
 dist/
 .DS_Store
-validation/output/
-validation/cases/
+analyses/*/output/
+analyses/validation/cases/

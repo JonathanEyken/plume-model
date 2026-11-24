@@ -27,6 +27,7 @@ plume = Plume(env, H=50e3, LE=5e3, fire_area=1e6, fire_depth=15.0)
 plume.ascend()
 ```
 
+## The default model
 The default plume (`wur_plume.Plume`) solves the following explicit finite difference approximations of
 budgets of `thetal` (liquid-water potential temperature), `qt` (total-water specific humidity), 
 `w` (vertical velocity) and plume mass (proportional to its cross-sectional `area`) over height (`z`):
@@ -61,28 +62,24 @@ index of the first saturated level, or -1 if the plume never condenses.
 If the environment comes as potential temperature and total water, as LES output usually
 does, make the environment with `environment_from_theta(z, theta, qt, p, u, v)` instead.
 
-### Validation runs
+## Analyses
 
-Validation cases are in `validation/` :
+Scripts that run the plume models live in `analyses/` (see [`analyses/README.md`](analyses/README.md)):
 
-```bash
-python validation/crosscheck_js.py
-```
-
-Plot styles come from `config`.
+You may choose to adopt the plot styles from `config`:
 
 ```python
 import config
 config.apply()
 ```
 
-### Cross-check against [wildfire-meteo-dmt](https://github.com/wildfire-meteo/wildfire-meteo-dmt)
+## Cross-check against [wildfire-meteo-dmt](https://github.com/wildfire-meteo/wildfire-meteo-dmt)
 
-One deployment of this parcel model is in [wildfire-meteo-dmt](https://github.com/wildfire-meteo/wildfire-meteo-dmt),
-so to make sure these are consistent, `validation/crosscheck_js.py` compares plumes from this package and
+One deployment of the default plume model is in [wildfire-meteo-dmt](https://github.com/wildfire-meteo/wildfire-meteo-dmt),
+so to make sure these are consistent, `analyses/crosscheck/crosscheck_js.py` compares plumes from this package and
 that repo. It is local and optional: it needs `node` and `wildfire-meteo-dmt`, found via `$WILDFIRE_METEO_DMT` or at
 `../wildfire-meteo-dmt`.
 
 ```bash
-WILDFIRE_METEO_DMT=/path/to/wildfire-meteo-dmt python validation/crosscheck_js.py
+WILDFIRE_METEO_DMT=/path/to/wildfire-meteo-dmt python analyses/crosscheck/crosscheck_js.py
 ```

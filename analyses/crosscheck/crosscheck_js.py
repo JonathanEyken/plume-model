@@ -36,19 +36,14 @@ from pathlib import Path
 
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).parent))
-
 import environments as envs
 from plume_model.wur_plume import Plume
 
 HERE = Path(__file__).parent
 DRIVER = HERE / "js" / "run_parcel.mjs"
 
-# The reference implementation's former Morton entrainment and w equation, kept for the LES
-# scripts' reference runs.
-REFERENCE_FAC_ENT = 1.0
-REFERENCE_A_W = 1.0
-REFERENCE_B_W = 0.2
+# The web tool's default fire-front depth.
+FIRE_DEPTH = 15.0
 
 # Name in the JavaScript output, name on the Plume. Compared element by element.
 ARRAYS = {"z": "z", "p": "p", "T": "T", "Tv": "Tv", "Td": "Td", "thetal": "thetal",
@@ -59,9 +54,6 @@ SCALARS = ["k_top", "k_lcl", "stopped"]
 BASE = ["dtheta", "dq", "w0", "area"]
 
 WINDY = {"u_sfc": 12.0, "v_sfc": -5.0}
-
-# The web tool's default fire-front depth.
-FIRE_DEPTH = 15.0
 
 # Environment, its options, sensible heat flux, latent heat flux, fire area, JavaScript options.
 CASES = [
@@ -80,7 +72,7 @@ CASES = [
 
 
 def reference_repo():
-    p = Path(os.environ.get("WILDFIRE_METEO_DMT", HERE.parent.parent / "wildfire-meteo-dmt"))
+    p = Path(os.environ.get("WILDFIRE_METEO_DMT", HERE.parents[2] / "wildfire-meteo-dmt"))
     return p if (p / "web" / "parcel.js").is_file() else None
 
 

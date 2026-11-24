@@ -22,7 +22,7 @@ from .entrainment import BuoyantEntrainment
 from .thermo import Rd, dewpoint, exner, g, qsat, sat_adjust, virtual_temp
 
 A_W = 0.5
-B_W = 0.5
+B_W = 0.3
 H0_PLUME = 20.0
 DZ_PLUME = 10.0
 

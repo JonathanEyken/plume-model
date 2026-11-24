@@ -51,7 +51,7 @@ def run_model(case, entrainment, dz=DZ_PLUME, a_w=A_W, b_w=B_W, ventilated=False
     env = case.environment()
     if ventilated:
         base = VentilatedPlumeBase(case.H, 0.0, case.area_fire, env,
-                                   aspect_ratio=case.fire_width / case.fire_depth, a_w=a_w, b_w=b_w)
+                                   case.fire_depth, a_w=a_w, b_w=b_w)
     else:
         base = PlumeBase(case.H, 0.0, case.area_fire, env, a_w=a_w, b_w=b_w)
     return Plume(env, base, entrainment, dz=dz, a_w=a_w, b_w=b_w).ascend()

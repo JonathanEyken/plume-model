@@ -27,7 +27,7 @@ const cases = JSON.parse(readFileSync(cases_path, "utf8"));
 const out = cases.map(c => {
     const wind_speed = Math.hypot(P.interp([P.H0_PLUME], c.z_env, c.u_env)[0],
                                   P.interp([P.H0_PLUME], c.z_env, c.v_env)[0]);
-    const u_vent = wind_speed * P.H0_PLUME / Math.sqrt(c.fire_area);
+    const u_vent = wind_speed * P.H0_PLUME / c.fire_depth;
     const dtheta = F.dtheta_from_H(c.H, c.rho, c.thetav, u_vent);
     const dq     = F.dq_from_LE(c.LE, dtheta, c.rho, c.thetav, u_vent);
     const w0     = F.w0_from_dtheta(dtheta, c.thetav);

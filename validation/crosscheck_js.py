@@ -17,8 +17,8 @@
 """Equivalence check of this package against the reference JavaScript implementation.
 
 Both sides run their default model: BuoyantEntrainment, the default w equation, and
-VentilatedPlumeBase with aspect ratio 1. The JavaScript base state is built from (H, LE, area)
-by fire_surface.js, as the web tool does, and compared with VentilatedPlumeBase.
+VentilatedPlumeBase on the web tool's default front depth. The JavaScript base state is built
+from (H, LE, area, depth) by fire_surface.js, as the web tool does, and compared with VentilatedPlumeBase.
 
 Local and optional: it needs `node` and a checkout of wildfire-meteo-dmt, located via
 $WILDFIRE_METEO_DMT or ../wildfire-meteo-dmt. It skips, and exits 0, when either is absent.
@@ -55,6 +55,9 @@ SCALARS = ["k_top", "k_lcl", "stopped"]
 BASE = ["dtheta", "dq", "w0", "area", "u_vent"]
 
 WINDY = {"u_sfc": 12.0, "v_sfc": -5.0}
+
+# The web tool's default fire-front depth.
+FIRE_DEPTH = 15.0
 
 # Environment, its options, sensible heat flux, latent heat flux, fire area, JavaScript options.
 CASES = [
@@ -96,7 +99,7 @@ def js_payload(cases):
                         "Td_env": env.Td.tolist(), "p_env": env.p.tolist(),
                         "u_env": env.u.tolist(), "v_env": env.v.tolist(),
                         "rho": float(env.rho[0]), "thetav": float(env.thetav[0]),
-                        "H": c["H"], "LE": c["LE"], "fire_area": c["area"],
+                        "H": c["H"], "LE": c["LE"], "fire_area": c["area"], "fire_depth": FIRE_DEPTH,
                         "z_max": float(env.z_top), "opts": c["opts"]})
     return payload
 
@@ -105,7 +108,7 @@ def run_python(case):
     """The Python equivalent of the web tool's entraining and non-entraining modes."""
     opts = case["opts"]
     env = case["env"]
-    base = VentilatedPlumeBase(case["H"], case["LE"], case["area"], env)
+    base = VentilatedPlumeBase(case["H"], case["LE"], case["area"], env, FIRE_DEPTH)
     if opts.get("non_entraining"):
         # The web tool seeds the non-entraining ascent with a nominal w0.
         base.w0 = max(base.w0, 1e-3)

@@ -28,7 +28,7 @@ env = Environment(z, T, Td, p, u, v)
 # The fire's surface fluxes set the plume's excesses at its base.
 base = PlumeBase(H=50e3, LE=5e3, area=1e6, env=env)
 
-plume = Plume(env, base, BuoyantEntrainment(a=0.3, fac_ent=0.4, beta=0.5, c_det=2.0))
+plume = Plume(env, base, BuoyantEntrainment(a=0.5, fac_ent=0.1, beta=0.5, c_det=2.0))
 plume.ascend()
 
 print(plume.z_top, plume.w.max(), plume.area[plume.k_top])
@@ -44,9 +44,9 @@ the plume's own grid (`theta_env`, `thetav_env`, `T_env`, `Td_env`, `p_env`, `rh
 If the environment comes as potential temperature and total water, as LES output usually
 does, make the environemnt with `environment_from_theta(z, theta, qt, p, u, v)` instead.
 
-`Plume(env, base)` by default uses `d(w²)/dz = 2 (a_w B - b_w eps w²)` with `a_w = b_w = 0.5`.
+`Plume(env, base)` by default uses `d(w²)/dz = 2 (a_w B - b_w eps w²)` with `a_w = 0.5`, `b_w = 0.3`.
 The default entrainment formulation is `eps = fac_ent/sqrt(A_0) + a max(B, 0)/w²`, with
-`fact_ent=0.4` and `a=0.3`.
+`fac_ent=0.1` and `a=0.5`.
 
 You can also use Morton-style entrainment (`eps = fac_ent/sqrt(A_0)`) and classic non-entraining
 parcel theory (`fac_ent=0.0`):

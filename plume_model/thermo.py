@@ -28,7 +28,7 @@ b = 243.5
 T0 = 273.15
 g = 9.81
 
-# Smallest positive double, guarding log(0) in the dewpoint inversion.
+# Smallest positive double, to prevent log(0) in the dewpoint calculation.
 TINY = 5e-324
 
 
@@ -40,7 +40,9 @@ def esat(T):
 
 def qsat(T, p):
     """Saturation specific humidity."""
-    es = esat(T)
+    # If esat begins to approach p (>~110 C), qsat would turn negative.
+    # So we cap es at 0.9 * p.
+    es = np.minimum(esat(T), 0.9 * p)
     return eps * es / (p - (1.0 - eps) * es)
 
 
@@ -72,12 +74,12 @@ def dqsatdT(T, p):
 
 
 def virtual_temp(T, qt, ql=0.0, qi=0.0):
-    """Virtual (density) temperature; condensate loads through ql + qi."""
+    """Virtual temperature including condensate loading ql + qi."""
     return T * (1 + (Rv / Rd - 1) * qt - Rv / Rd * (ql + qi))
 
 
 def thetal(theta, ql, T):
-    """Liquid water potential temperature, exponential form."""
+    """Liquid water potential temperature (no ice), exponential form."""
     return theta * np.exp(-Lv * ql / (cp * T))
 
 

@@ -30,8 +30,8 @@ import numpy as np
 FAC_ENT = 1.0  # Non-dimensional scaling of entrainment, from Eyken (2026)
 BETA = 0.5     # Ratio of fractional detrainment to fractional entrainment
 C_DET = 2.0    # Dynamic detrainment -C_DET/w dw/dz where w decreases
-A_BUOYANT = 0.3        # Buoyancy-driven entrainment a B/w**2, from the LES plume core
-FAC_ENT_BUOYANT = 0.4  # Morton part of BuoyantEntrainment, from the LES plume core
+A_BUOYANT = 0.5        # Buoyancy-driven entrainment a B/w**2
+FAC_ENT_BUOYANT = 0.1  # Morton part of BuoyantEntrainment
 
 
 class MortonEntrainment:

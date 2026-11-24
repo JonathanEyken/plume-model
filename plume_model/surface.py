@@ -48,28 +48,29 @@ class PlumeBase:
 
 class VentilatedPlumeBase:
     """The plume's base state when horizontal wind contributes to volume flux out of a control
-    volume above the fire of height h0 and along-wind depth L. Heat flux per unit fire
-    area is ventilated by a volume flux per unit fire depth equal wu*L + s*h0, so conservation
-    of heat reads:
+    volume above the fire of height h0 and along-wind depth D, the depth of the fire front.
+    Heat flux per unit fire area is ventilated by a volume flux per unit front width equal
+    to w0 D + s h0, so conservation of heat reads:
 
-        H L = rho cp dtheta (w0 L + s h0),    w0**2 = K dtheta    (K as in PlumeBase),
+        H D = rho cp dtheta (w0 D + s h0),    w0**2 = K dtheta    (K as in PlumeBase),
 
-    so w0**2 (w0 + s h0 / L) = K H / (rho cp). Limits:
-     - s h0 / L >> w0:  w0 ~ H**(1/2) * s**(-1/2)
-     - s h0 / L << w0:  w0 ~ H**(1/3)
-    
+    so w0**2 (w0 + s h0 / D) = K H / (rho cp). Limits:
+     - s h0 / D >> w0:  w0 ~ H**(1/2) * s**(-1/2)
+     - s h0 / D << w0:  w0 ~ H**(1/3)
+
     Assumptions:
-    - The fire is a rectangle, so L = sqrt(area / aspect_ratio).
-    - The base area A_f (w0 + s h0 / L) / w0 includes the air vented downwind, so that the plume
+    - The wind crosses the front along its depth (a head fire), so widening the front does
+      not change the ventilation.
+    - The base area A_f (w0 + s h0 / D) / w0 includes the air vented downwind, so that the plume
       carries the fire's heat flux.
     - s is the *environmental* wind speed, but it could be further constrained.
     """
 
-    def __init__(self, H, LE, area, env, aspect_ratio=1.0, a_w=A_W, b_w=B_W, h0=H0_PLUME):
+    def __init__(self, H, LE, area, env, fire_depth, a_w=A_W, b_w=B_W, h0=H0_PLUME):
         self.H = H
         self.LE = LE
         self.fire_area = area
-        self.fire_depth = np.sqrt(area / aspect_ratio)
+        self.fire_depth = fire_depth
 
         rho = env.rho[0]
         thetav = env.thetav[0]

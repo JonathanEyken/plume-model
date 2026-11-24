@@ -16,9 +16,11 @@
 
 """Equivalence check of this package against the reference JavaScript implementation.
 
-Both sides run their default model: BuoyantEntrainment, the default w equation, and
-VentilatedPlumeBase on the web tool's default front depth. The JavaScript base state is built
-from (H, LE, area, depth) by fire_surface.js, as the web tool does, and compared with VentilatedPlumeBase.
+Both sides run their default model on the web tool's default front depth. The JavaScript base
+state is built from (H, LE, area, depth) by fire_surface.js, as the web tool does, and compared
+with Plume.surface. The Python dynamic detrainment is explicit, lagged by one step, where the
+JavaScript integrates it exactly over the step, so mass flux, area and the entrainment and
+detrainment fluxes differ near plume top; every other profile is independent of detrainment.
 
 Local and optional: it needs `node` and a checkout of wildfire-meteo-dmt, located via
 $WILDFIRE_METEO_DMT or ../wildfire-meteo-dmt. It skips, and exits 0, when either is absent.
@@ -37,12 +39,14 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).parent))
 
 import environments as envs
-from plume_model import BuoyantEntrainment, Plume, VentilatedPlumeBase
+from plume_model.wur_plume import Plume
 
 HERE = Path(__file__).parent
 DRIVER = HERE / "js" / "run_parcel.mjs"
 
-# The reference implementation's former w equation, kept for the LES scripts' reference runs.
+# The reference implementation's former Morton entrainment and w equation, kept for the LES
+# scripts' reference runs.
+REFERENCE_FAC_ENT = 1.0
 REFERENCE_A_W = 1.0
 REFERENCE_B_W = 0.2
 
@@ -50,9 +54,9 @@ REFERENCE_B_W = 0.2
 ARRAYS = {"z": "z", "p": "p", "T": "T", "Tv": "Tv", "Td": "Td", "thetal": "thetal",
           "thetav": "thetav", "qt": "qt", "area": "area", "w": "w", "buoy": "buoy",
           "u": "u", "v": "v", "x": "x", "y": "y", "mass_flux": "mass_flux",
-          "entrainment": "entrainment", "detrainment": "detrainment", "type": "saturated"}
+          "entrainment": "entrainment_flux", "detrainment": "detrainment_flux", "type": "saturated"}
 SCALARS = ["k_top", "k_lcl", "stopped"]
-BASE = ["dtheta", "dq", "w0", "area", "u_vent"]
+BASE = ["dtheta", "dq", "w0", "area"]
 
 WINDY = {"u_sfc": 12.0, "v_sfc": -5.0}
 
@@ -104,20 +108,26 @@ def js_payload(cases):
     return payload
 
 
+class SeededPlume(Plume):
+    """The web tool seeds its non-entraining ascent with a nominal w0, on the default base."""
+
+    def surface(self):
+        default = Plume(self.env, self.H, self.LE, self.fire_area, self.fire_depth)
+        dtheta, dq, w0, area = default.surface()
+        return dtheta, dq, max(w0, 1e-3), area
+
+
 def run_python(case):
     """The Python equivalent of the web tool's entraining and non-entraining modes."""
     opts = case["opts"]
-    env = case["env"]
-    base = VentilatedPlumeBase(case["H"], case["LE"], case["area"], env, FIRE_DEPTH)
+    fire = (case["env"], case["H"], case["LE"], case["area"], FIRE_DEPTH)
     if opts.get("non_entraining"):
-        # The web tool seeds the non-entraining ascent with a nominal w0.
-        base.w0 = max(base.w0, 1e-3)
-        ent = BuoyantEntrainment(a=0.0, fac_ent=0.0)
-        plume = Plume(env, base, entrainment=ent, a_w=1.0, full_ascent=True)
+        plume = SeededPlume(*fire, fac_ent=0.0, a_buoyant=0.0, a_w=1.0, full_ascent=True)
     else:
-        names = {"a_e": "fac_ent", "b_e": "a", "beta": "beta", "c_det": "c_det"}
-        ent = BuoyantEntrainment(**{names[k]: v for k, v in opts.items() if k in names})
-        plume = Plume(env, base, entrainment=ent)
+        names = {"a_e": "fac_ent", "b_e": "a_buoyant", "beta": "beta", "c_det": "c_det"}
+        plume = Plume(*fire, **{names[k]: v for k, v in opts.items() if k in names})
+    dtheta, dq, w0, area = plume.surface()
+    base = {"dtheta": dtheta, "dq": dq, "w0": w0, "area": area}
     return base, plume.ascend()
 
 
@@ -134,11 +144,11 @@ def compare_base(js_base, base):
     problems = []
     worst = 0.0
     for key in BASE:
-        rel = float(relative_difference(js_base[key], getattr(base, key)))
+        rel = float(relative_difference(js_base[key], base[key]))
         worst = max(worst, rel)
         if rel > 1e-10:
             problems.append("base %s: rel %.3e (js=%.12g py=%.12g)"
-                            % (key, rel, js_base[key], getattr(base, key)))
+                            % (key, rel, js_base[key], base[key]))
     return problems, worst
 
 

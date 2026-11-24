@@ -17,7 +17,7 @@
 """Plume rise through a well-mixed layer capped by a sharp inversion.
 
 Sweeps the sensible heat flux H over 1-100 kW/m2 and the fire area over 0.1-10 km2, at
-LE = 0, and plots the environment, the plume-top regime diagram, profiles along both sweep
+LE = 0, with the default Plume on the web tool's fire-front depth, and plots the environment, the plume-top regime diagram, profiles along both sweep
 directions, and the w**2 budget.
 """
 
@@ -28,11 +28,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import config
-from plume_model import Plume, PlumeBase
+from plume_model.wur_plume import Plume
 from plume_model.thermo import qsat
 
 sys.path.insert(0, str(Path(__file__).parent))
 import environments
+from crosscheck_js import FIRE_DEPTH
 
 OUTPUT = Path(__file__).parent / "output" / "mixed_layer_inversion"
 
@@ -51,8 +52,7 @@ def run_sweep(env):
     for H in H_VALUES:
         row = []
         for area in AREA_VALUES:
-            base = PlumeBase(H, LE, area, env)
-            row.append(Plume(env, base).ascend())
+            row.append(Plume(env, H, LE, area, FIRE_DEPTH).ascend())
         plumes.append(row)
     return plumes
 
@@ -160,7 +160,7 @@ def plot_profiles(env, plumes_and_labels, title, path):
         ax[3].plot(plume.qt * 1e3, zk, **style)
         ax[4].plot(plume.mass_flux, zk, **style)
         ax[5].plot(plume.eps * 1e3, zk, **style)
-        ax[6].plot((plume.delta + plume.delta_dyn) * 1e3, zk, **style)
+        ax[6].plot(plume.delta * 1e3, zk, **style)
         ax[7].plot(plume.x / 1e3, zk, **style)
 
     zk_env = env.z / 1e3

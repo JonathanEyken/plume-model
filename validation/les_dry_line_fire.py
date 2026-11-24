@@ -35,26 +35,21 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
 import config
-from plume_model import MortonEntrainment, Plume, PlumeBase, VentilatedPlumeBase
-from plume_model.plume import A_W, B_W, DZ_PLUME
+from plume_model.wur_plume import DZ_PLUME, Plume
 
 sys.path.insert(0, str(Path(__file__).parent))
 import les
-from crosscheck_js import REFERENCE_A_W, REFERENCE_B_W
+from crosscheck_js import REFERENCE_A_W, REFERENCE_B_W, REFERENCE_FAC_ENT
 
 OUTPUT = Path(__file__).parent / "output" / "les_dry_line_fire"
 
 FLI_PROFILES = 10e6
 
 
-def run_model(case, entrainment, dz=DZ_PLUME, a_w=A_W, b_w=B_W, ventilated=False):
-    env = case.environment()
-    if ventilated:
-        base = VentilatedPlumeBase(case.H, 0.0, case.area_fire, env,
-                                   case.fire_depth, a_w=a_w, b_w=b_w)
-    else:
-        base = PlumeBase(case.H, 0.0, case.area_fire, env, a_w=a_w, b_w=b_w)
-    return Plume(env, base, entrainment, dz=dz, a_w=a_w, b_w=b_w).ascend()
+def run_model(case, dz=DZ_PLUME, ventilated=False, **coefficients):
+    """A Plume above the case's fire, with the given coefficients, ascended through its environment."""
+    return Plume(case.environment(), case.H, 0.0, case.area_fire, case.fire_depth,
+                 vent_base=ventilated, dz=dz, **coefficients).ascend()
 
 
 def guide_line(ax, value, vertical=False):
@@ -268,7 +263,7 @@ def plot_profiles(runs, title, path):
             np.sqrt(plume.area / np.pi),
             plume.thetav - plume.thetav_env,
             plume.area * plume.w,
-            (plume.eps - plume.delta - plume.delta_dyn) * 1e3,
+            (plume.eps - plume.delta) * 1e3,
             plume.x / 1e3,
         ]
         for a, (mean, band), model in zip(ax, les_profiles, model_profiles):
@@ -316,7 +311,8 @@ def main():
     OUTPUT.mkdir(parents=True, exist_ok=True)
 
     cases = [les.LESCase(name) for name in les.case_names()]
-    plumes = [run_model(case, MortonEntrainment(), a_w=REFERENCE_A_W, b_w=REFERENCE_B_W)
+    plumes = [run_model(case, fac_ent=REFERENCE_FAC_ENT, a_buoyant=0.0,
+                        a_w=REFERENCE_A_W, b_w=REFERENCE_B_W)
               for case in cases]
     print_summary(cases, plumes)
 

@@ -24,8 +24,8 @@ The ratio a = eps_core w_core**2 / B_core is the coefficient the core implies fo
 term alone, and eta = d(w_core**2)/dz / 2 B_core its net efficiency.
 
 The core w budget, d(w_core**2)/dz = 2 a_w B_core - 2 b_w eps_core w_core**2, is regressed
-for a_w at fixed b_w and shown against z / h_abl, and the base check compares PlumeBase at the default model's a_w, b_w
-with the LES core and mean plume at h0.
+for a_w at fixed b_w and shown against z / h_abl. The base check compares the default Plume's
+surface model, ventilated on the LES front depth, with the LES core and mean plume at h0.
 """
 
 import sys
@@ -35,9 +35,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import config
-from plume_model import PlumeBase
-from plume_model.entrainment import A_BUOYANT, FAC_ENT_BUOYANT
-from plume_model.plume import A_W, B_W, H0_PLUME
+from plume_model.wur_plume import A_BUOYANT, A_W, B_W, FAC_ENT, H0_PLUME, Plume
 
 sys.path.insert(0, str(Path(__file__).parent))
 import les
@@ -67,7 +65,7 @@ def implied_a(case):
 
 def core_model_entrainment(case):
     """The default model's eps [1/m], evaluated on the LES core."""
-    return (FAC_ENT_BUOYANT / np.sqrt(case.area_fire)
+    return (FAC_ENT / np.sqrt(case.area_fire)
             + A_BUOYANT * np.maximum(case.buoy_core, 0.0) / case.w_core**2)
 
 
@@ -80,7 +78,7 @@ def print_tables(cases):
          lambda c: c.core_entrainment, 1e3),
         ("B_core / w_core**2 [1/km]", buoyant_scaling, 1e3),
         ("default model eps = %g/sqrt(A_0) + %g B/w**2 on the LES core [1/km]"
-         % (FAC_ENT_BUOYANT, A_BUOYANT), core_model_entrainment, 1e3),
+         % (FAC_ENT, A_BUOYANT), core_model_entrainment, 1e3),
         ("a = eps_core w_core**2 / B_core", implied_a, 1.0),
         ("eta_core = d(w_core**2)/dz / 2 B_core", lambda c: c.core_efficiency, 1.0),
         ("w_core_centreline / w_95", lambda c: c.w_core_centreline / c.w_core, 1.0),
@@ -171,17 +169,18 @@ def plot_w_budget(cases, fits, path):
 
 
 def print_base_check(cases):
-    print("\nBase check at h0 = %g m: PlumeBase(a_w = %g, b_w = %g) against the LES"
+    print("\nBase check at h0 = %g m: Plume.surface (a_w = %g, b_w = %g, ventilated on the"
+          " LES front depth) against the LES"
           % (H0_PLUME, A_W, B_W))
     print("%-16s %8s | %7s %7s %7s | %7s %7s %7s"
           % ("case", "H", "dtheta", "core", "mean", "w0", "w_core", "w"))
     print("%-16s %8s | %7s %7s %7s | %7s %7s %7s"
           % ("", "[kW/m2]", "model", "LES", "LES", "model", "LES", "LES"))
     for c in cases:
-        base = PlumeBase(c.H, 0.0, c.area_fire, c.environment(), a_w=A_W, b_w=B_W)
+        dtheta, dq, w0, area = Plume(c.environment(), c.H, 0.0, c.area_fire, c.fire_depth).surface()
         print("%-16s %8.1f | %7.2f %7.2f %7.2f | %7.2f %7.2f %7.2f"
-              % (c.name, c.H / 1e3, base.dtheta, at_height(c.z, c.theta_prime_core, H0_PLUME),
-                 at_height(c.z, c.theta_prime, H0_PLUME), base.w0,
+              % (c.name, c.H / 1e3, dtheta, at_height(c.z, c.theta_prime_core, H0_PLUME),
+                 at_height(c.z, c.theta_prime, H0_PLUME), w0,
                  at_height(c.z, c.w_core, H0_PLUME), at_height(c.z, c.w, H0_PLUME)))
 
 

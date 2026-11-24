@@ -37,8 +37,7 @@ import numpy as np
 from matplotlib.lines import Line2D
 
 import config
-from plume_model.entrainment import A_BUOYANT, FAC_ENT_BUOYANT
-from plume_model.plume import A_W, B_W
+from plume_model.wur_plume import A_BUOYANT, A_W, B_W, FAC_ENT
 from plume_model.thermo import g
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -79,7 +78,7 @@ def rise(case, theta_prime, w_profile, a_w, b_w, a, eps_m):
 
 def runs(case):
     """(label, which LES profiles, a_w, b_w, a, eps_M) for the four integrations."""
-    eps_m = FAC_ENT_BUOYANT / np.sqrt(case.area_fire)
+    eps_m = FAC_ENT / np.sqrt(case.area_fire)
     return [
         ("core, plume w equation", "core", A_W, B_W, A_BUOYANT, eps_m),
         ("core, non-entraining", "core", A_W, 0.0, 0.0, 0.0),
@@ -109,7 +108,7 @@ def main():
     print("Plume top [m] from the w equation through prescribed LES buoyancy, from z = %g m"
           % Z_START)
     print("a_w = %g, b_w = %g, a = %g, fac_ent = %g\n"
-          % (A_W, B_W, A_BUOYANT, FAC_ENT_BUOYANT))
+          % (A_W, B_W, A_BUOYANT, FAC_ENT))
     print("%-16s %13s " % ("case", "LES z_top") + "".join("%13s" % l.split(",")[0] + "" for l in labels))
     print("%-16s %13s " % ("", "") + "".join("%13s" % l.split(", ")[1][:12] for l in labels))
     errors = {l: [] for l in labels}

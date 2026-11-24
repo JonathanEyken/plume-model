@@ -16,8 +16,8 @@
 
 """The default model against the LES plume core.
 
-The default model has VentilatedPlumeBase on the LES fire-front depth,
-d(w**2)/dz = 2 (a_w B - b_w eps w**2), Morton and dynamic detrainment, and BuoyantEntrainment:
+The default Plume has a ventilated base on the LES fire-front depth,
+d(w**2)/dz = 2 (a_w B - b_w eps w**2), Morton and dynamic detrainment, and
 
     eps = fac_ent / sqrt(A_0) + a max(B, 0) / w**2.
 
@@ -34,9 +34,7 @@ import numpy as np
 from matplotlib.lines import Line2D
 
 import config
-from plume_model import BuoyantEntrainment
-from plume_model.entrainment import A_BUOYANT, FAC_ENT_BUOYANT
-from plume_model.plume import A_W, B_W
+from plume_model.wur_plume import A_BUOYANT, A_W, B_W, FAC_ENT
 
 sys.path.insert(0, str(Path(__file__).parent))
 import les
@@ -52,7 +50,7 @@ FLI_PROFILES = 10e6
 
 
 def run_core(case, dz=DZ):
-    return run_model(case, BuoyantEntrainment(), dz, ventilated=True)
+    return run_model(case, dz, ventilated=True)
 
 
 def core_pairs(case, plume):
@@ -70,7 +68,7 @@ def print_summary(cases, runs):
     low = np.array([c.U <= 3 for c in cases])
     high = np.array([c.U >= 9 for c in cases])
     print("Against the LES core, dz = %g m. Default model: fac_ent = %g, a = %g, a_w = %g, b_w = %g,"
-          " ventilated base on the LES front depth" % (DZ, FAC_ENT_BUOYANT, A_BUOYANT, A_W, B_W))
+          " ventilated base on the LES front depth" % (DZ, FAC_ENT, A_BUOYANT, A_W, B_W))
     print("\nz_top: model / LES, median (min - max), and median by wind")
     print("%-24s %20s %8s %8s %8s" % ("", "all", "U <= 3", "U >= 9", "rms [m]"))
     for label, plumes in runs:
@@ -169,7 +167,7 @@ def plot_overview(cases, plumes, path):
     axes["w"].set_title("FLI = %g MW/m; dotted grey: boundary-layer top" % (FLI_PROFILES / 1e6),
                         fontsize=9)
     fig.suptitle("Default model (fac_ent = %g, a = %g, a_w = %g, b_w = %g, ventilated base) "
-                 "against the LES core" % (FAC_ENT_BUOYANT, A_BUOYANT, A_W, B_W))
+                 "against the LES core" % (FAC_ENT, A_BUOYANT, A_W, B_W))
     fig.savefig(path)
     plt.close(fig)
 

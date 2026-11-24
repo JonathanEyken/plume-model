@@ -14,14 +14,10 @@
 # limitations under the License.
 #
 
-from . import entrainment, surface, thermo
-from .entrainment import BuoyantEntrainment, MortonEntrainment
-from .environment import Environment, environment_from_theta
-from .plume import Plume, find_lcl
-from .surface import PlumeBase, VentilatedPlumeBase
+"""Shared components of the plume models. Each plume model is its own module, which
+should be imported with a clear reference. E.g. `from plume_model.wur_plume import Plume`."""
 
-__all__ = [
-    "thermo", "entrainment", "surface",
-    "Plume", "PlumeBase", "VentilatedPlumeBase", "Environment", "environment_from_theta",
-    "MortonEntrainment", "BuoyantEntrainment", "find_lcl",
-]
+from . import thermo
+from .environment import Environment, environment_from_theta
+
+__all__ = ["thermo", "Environment", "environment_from_theta"]

@@ -51,6 +51,10 @@ def esat_from_q(q, p):
     return q * p / (eps + (1.0 - eps) * q)
 
 
+def q_from_e_p(e,p):
+    return eps*e/(p-e-eps) 
+
+
 def dewpoint(q, p):
     """Dewpoint from specific humidity, inverting the Bolton formula."""
     es = esat_from_q(q, p)

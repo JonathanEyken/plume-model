@@ -16,7 +16,6 @@
 
 import numpy as np
 import time
-# import pandas as pd
 import openmeteo_requests
 
 from .thermo import Rd, dewpoint, exner, esat, qsat, virtual_temp, q_from_e_p

@@ -6,6 +6,7 @@ Runs of the plume model(s) organised per directory:
 |---|---|
 | `validation/` | Compares the model with LES (`les_*.py`) and (in the future) observations. Data for these validations should go in `validation/cases/` and are not part of this repo. |
 | `crosscheck/` | Checks that the wur_plume model and the wildfire-meteo-dmt tool give the same plume. |
+| `example_openmeteo/`| Creates a plume model forecast for the current time to compare different weather models for the environment. |
 
 Each sub-directory runs independently of the others. They import `plume_model` and `config` from the rest of the repo.
 

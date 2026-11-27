@@ -26,8 +26,7 @@ for model in models:
 
     tops = []
     for A in areas:
-        plu = Plume(env, 100e3, 10e3, A*1e4, 20)
-        plu.surface()
+        plu = Plume(env, 100e3, 10e3, A*1e4, 20) 
         plu.ascend()
         tops.append(plu.z_top)
 
